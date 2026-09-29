@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sitraa — Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/admin/styles.css?v=9" />
+</head>
+<body>
+  <div id="loginView" class="login-wrap">
+    <div class="login-card">
+      <div class="brand">
+        <div class="brand-logo">S</div>
+        <div>
+          <h1>Sitraa</h1>
+          <p class="muted">لوحة تحكم المتجر</p>
+          <p class="muted small">api.sitraa.shop/admin</p>
+        </div>
+      </div>
+      <form id="loginForm">
+        <label>اسم المستخدم</label>
+        <input id="username" autocomplete="username" required />
+        <label>كلمة المرور</label>
+        <input id="password" type="password" autocomplete="current-password" required />
+        <button type="submit" class="btn btn-primary full">دخول</button>
+        <div id="loginError" class="error hidden"></div>
+      </form>
+    </div>
+  </div>
+
+  <div id="appView" class="app hidden">
+    <header class="top-header">
+      <div class="brand-inline">
+        <div class="brand-logo sm">VD</div>
+        <div>
+          <strong>Velora DZ</strong>
+          <span class="muted">COD Admin Dashboard</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="orderAlertToggle" class="btn btn-soft alert-toggle active" type="button" title="تنبيهات الطلبيات">🔔 صوت ON</button>
+        <span id="livePulse" class="live-pill hidden">Live</span>
+        <input id="dateFrom" type="date" />
+        <input id="dateTo" type="date" />
+        <button id="applyFilters" class="btn btn-dark">Refresh</button>
+        <button id="logoutBtn" class="btn btn-soft">Logout</button>
+      </div>
+    </header>
+
+    <main class="container">
+      <div id="globalError" class="error hidden"></div>
+      <div id="globalLoading" class="loading-banner hidden">جاري التحميل...</div>
+
+      <div class="title-row">
+        <div>
+          <h2 id="pageTitle">Overview</h2>
+          <p class="muted small" id="pageSubtitle">كل الزوار والطلبيات محسوبين — تأكيد/توصيل من Google Sheet + DHD.</p>
+        </div>
+        <div class="preset-group">
+          <button type="button" class="preset" data-range="today">اليوم</button>
+          <button type="button" class="preset active" data-range="7">7 أيام</button>
+          <button type="button" class="preset" data-range="30">30 يوم</button>
+        </div>
+      </div>
+      <p id="rangeDisplay" class="range-display"></p>
+
+      <nav class="tabs">
+        <button type="button" class="tab active" data-tab="overview">Overview</button>
+        <button type="button" class="tab" data-tab="products">حساب المنتجات</button>
+        <button type="button" class="tab" data-tab="orders">Orders</button>
+        <button type="button" class="tab" data-tab="deliveries">التوصيل DHD</button>
+        <button type="button" class="tab" data-tab="accounting">Comptabilité</button>
+        <button type="button" class="tab" data-tab="costs">Costs</button>
+      </nav>
+
+      <section id="tab-overview" class="tab-panel">
+        <div class="hero-card">
+          <div>
+            <div class="hero-label">Revenue (Delivered)</div>
+            <div class="hero-value" id="mDeliveredRevenue">0 دج</div>
+            <div class="hero-sub" id="mNetProfit">Net profit 0 دج</div>
+          </div>
+          <div class="hero-side">
+            <div><span>Ad Spend</span><strong id="mAdSpend">0 دج</strong></div>
+            <div><span>ROAS</span><strong id="mRoas">0</strong></div>
+            <div><span>Loss</span><strong id="mLoss">0 دج</strong></div>
+          </div>
+        </div>
+
+        <div class="metrics-grid" id="metricsGrid"></div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Daily Trend</h3>
+            <div id="dailyChart" class="bar-chart"></div>
+          </div>
+          <div class="card">
+            <h3>Channel Revenue</h3>
+            <div id="channelChart" class="bar-chart"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Daily P&amp;L</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th><th>Orders</th><th>Delivered</th><th>Ad Spend</th><th>Cost</th><th>Profit</th><th>Loss</th>
+                </tr>
+              </thead>
+              <tbody id="pnlTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-products" class="tab-panel hidden">
+        <div class="metrics-grid" id="productSummaryCards"></div>
+        <div class="card">
+          <h3>حساب كل منتج — الفترة المختارة</h3>
+          <p class="muted small" id="productPerfNote">
+            حسب الطلبيات في الفترة المختارة (7 أيام / 30 يوم / اليوم) — حبات، إعلانات، فائدة أو خسارة لكل منتج
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>المنتج</th>
+                  <th>طلبيات</th>
+                  <th>حبات طلب</th>
+                  <th>حبات شحن</th>
+                  <th>حبات تسليم</th>
+                  <th>إيراد مسلّم</th>
+                  <th>تكلفة شراء</th>
+                  <th>إعلانات</th>
+                  <th>إعلان/حبة</th>
+                  <th>كوست نهائي/حبة</th>
+                  <th>صافي/حبة</th>
+                  <th>فائدة</th>
+                  <th>خسارة</th>
+                </tr>
+              </thead>
+              <tbody id="productPerfBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-orders" class="tab-panel hidden">
+        <div class="card">
+          <div class="orders-range-row">
+            <p id="ordersRangeLabel" class="muted small"></p>
+            <strong id="ordersCountLabel" class="orders-count"></strong>
+          </div>
+          <div class="table-actions">
+            <input id="orderSearch" placeholder="Search name, phone, order id..." />
+            <select id="orderStatus"></select>
+            <button type="button" id="reloadOrders" class="btn btn-soft">Refresh</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Order</th><th>Customer</th><th>Product</th><th>Wilaya</th><th>Total</th><th>Status</th><th>Date</th><th></th></tr>
+              </thead>
+              <tbody id="ordersTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-deliveries" class="tab-panel hidden">
+        <div class="card table-actions">
+          <div>
+            <h3>التوصيل — DHD</h3>
+            <p class="muted small">يتصل تلقائياً بـ DHD ويجلب كل الطلبيات <strong>تم التسليم</strong> — بدون زر منفصل.</p>
+          </div>
+          <button type="button" id="reloadDeliveries" class="btn btn-dark">تحديث القائمة</button>
+        </div>
+        <div class="metrics-grid" id="deliveriesStats"></div>
+        <div class="card">
+          <div class="orders-range-row">
+            <p id="deliveriesRangeLabel" class="muted small"></p>
+            <strong id="deliveriesCountLabel" class="orders-count"></strong>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order</th><th>Customer</th><th>Tracking DHD</th><th>Wilaya</th><th>Total</th><th>Delivered</th><th></th>
+                </tr>
+              </thead>
+              <tbody id="deliveriesTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-accounting" class="tab-panel hidden">
+        <div class="card table-actions">
+          <div>
+            <h3>مزامنة تلقائية</h3>
+            <p class="muted small" id="syncStatusNote">DHD (تسليم/تأكيد) + Meta (إعلانات) — تتحدث عند كل Refresh.</p>
+          </div>
+          <button type="button" id="runSyncBtn" class="btn btn-dark">مزامنة الآن</button>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <h3>صرف الإعلانات (يدوي)</h3>
+            <form id="adSpendForm" class="form-grid">
+              <div><label>التاريخ</label><input id="adDate" type="date" required /></div>
+              <div><label>المنصة</label>
+                <select id="adPlatform" required>
+                  <option value="meta">Meta (فيسبوك)</option>
+                  <option value="tiktok">TikTok</option>
+                  <option value="snap">Snapchat</option>
+                  <option value="google">Google</option>
+                  <option value="other">أخرى</option>
+                </select>
+              </div>
+              <div class="full"><label>المنتج</label>
+                <select id="adProduct">
+                  <option value="">كل المنتجات / صرف عام</option>
+                </select>
+              </div>
+              <div><label>المبلغ ($ USD)</label><input id="adAmountUsd" type="number" min="0" step="0.01" placeholder="50" /></div>
+              <div><label>أو مباشرة (دج)</label><input id="adAmount" type="number" min="0" step="1" placeholder="7000" /></div>
+              <div class="full muted small">سعر الصرف: <span id="usdRateLabel">250.50</span> دج/$ — املأ USD أو DZD</div>
+              <div class="full"><label>ملاحظات</label><input id="adNotes" placeholder="حملة السيلوليت..." /></div>
+              <div class="full"><button class="btn btn-primary" type="submit">حفظ الصرف</button></div>
+            </form>
+          </div>
+          <div class="card">
+            <h3>ملخص الحسابات</h3>
+            <div id="accountingSummary" class="summary-list"></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>سجل صرف الإعلانات</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Date</th><th>Platform</th><th>Product</th><th>Amount</th><th>Source</th><th>Notes</th><th></th></tr></thead>
+              <tbody id="adSpendTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-costs" class="tab-panel hidden">
+        <div class="card">
+          <h3>Product Purchase Costs</h3>
+          <p class="muted small">Cellulite = 3600 DZD. Change once here only.</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Product</th><th>Purchase (DZD)</th><th></th></tr></thead>
+              <tbody id="productCostsBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="orderModal" class="modal-backdrop hidden">
+    <div class="modal card">
+      <div class="modal-header">
+        <div><h3 id="modalTitle">Order</h3><p class="muted" id="modalSubtitle"></p></div>
+        <button type="button" id="closeModal" class="btn btn-soft">Close</button>
+      </div>
+      <div id="orderPreview" class="order-preview"></div>
+      <div class="modal-footer">
+        <select id="modalStatus"></select>
+        <button type="button" id="saveStatusBtn" class="btn btn-primary">Update status</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="orderToastStack" class="order-toast-stack" aria-live="polite"></div>
+
+  <script src="/admin/app.js?v=22"></script>
+</body>
+</html>
