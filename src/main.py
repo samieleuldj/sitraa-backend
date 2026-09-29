@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 models.Base.metadata.create_all(bind=database.engine)
 ensure_schema_updates()
 
-app = FastAPI(title="Velora DZ API")
+app = FastAPI(title="Sitraa API")
 app.include_router(admin_router)
 
 ADMIN_DIR = Path(__file__).resolve().parent.parent / "admin"
@@ -36,7 +36,7 @@ ADMIN_ASSET_HEADERS = {
     "Pragma": "no-cache",
 }
 
-origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,https://veloradz.shop").split(",")
+origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,https://sitraa.shop").split(",")
 
 app.add_middleware(
     CORSMiddleware,
@@ -102,7 +102,7 @@ def log_startup_config():
 
 @app.get("/")
 def read_root():
-    return {"status": "online", "message": "Velora DZ API is running"}
+    return {"status": "online", "message": "Sitraa API is running"}
 
 
 @app.get("/api/storefront/prices")

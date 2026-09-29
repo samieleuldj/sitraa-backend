@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # رابط قاعدة البيانات (من EasyPanel) - تم التعديل ليتوافق مع MySQL
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "mysql+pymysql://veloradz:veloradz@veloradz_database:3306/veloradz")
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "mysql+pymysql://sitraa:sitraa@sitraa_database:3306/sitraa")
 
 # إصلاح الرابط إذا كان يبدأ بـ mysql:// بدلاً من mysql+pymysql://
 if SQLALCHEMY_DATABASE_URL.startswith("mysql://"):

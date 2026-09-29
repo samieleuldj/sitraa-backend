@@ -1,5 +1,5 @@
 const API = window.location.origin;
-const TOKEN_KEY = 'veloradz_admin_token';
+const TOKEN_KEY = 'sitraa_admin_token';
 const API_TIMEOUT_MS = 25000;
 
 const state = {
@@ -15,8 +15,8 @@ const state = {
   dateRange: { from: '', to: '' },
   loading: false,
   orderAlerts: {
-    enabled: localStorage.getItem('veloradz_order_alerts') !== 'off',
-    lastOrderDbId: Number(localStorage.getItem('veloradz_last_order_id') || 0),
+    enabled: localStorage.getItem('sitraa_order_alerts') !== 'off',
+    lastOrderDbId: Number(localStorage.getItem('sitraa_last_order_id') || 0),
     initialized: false,
     pollTimer: null,
     audioReady: false,
@@ -237,7 +237,7 @@ async function api(path, options = {}) {
       );
     }
     throw new Error(
-      'تعذر الاتصال بالسيرفر. افتح الرابط https://api.confortdz.shop/admin من WiFi أو متصفح آخر، ثم أعد المحاولة.'
+      'تعذر الاتصال بالسيرفر. افتح الرابط https://api.sitraa.shop/admin من WiFi أو متصفح آخر، ثم أعد المحاولة.'
     );
   } finally {
     window.clearTimeout(timer);
@@ -370,7 +370,7 @@ function notifyNewOrder(order) {
 
   if ('Notification' in window && Notification.permission === 'granted') {
     try {
-      new Notification('طلبية جديدة — Velora DZ', {
+      new Notification('طلبية جديدة — Sitraa', {
         body: `${order.customer_name} — ${money(order.total_price)}`,
         tag: `order-${order.order_id}`,
       });
@@ -403,13 +403,13 @@ async function pollLatestOrder() {
     if (!state.orderAlerts.initialized) {
       state.orderAlerts.initialized = true;
       state.orderAlerts.lastOrderDbId = order.id;
-      localStorage.setItem('veloradz_last_order_id', String(order.id));
+      localStorage.setItem('sitraa_last_order_id', String(order.id));
       return;
     }
 
     if (order.id > state.orderAlerts.lastOrderDbId) {
       state.orderAlerts.lastOrderDbId = order.id;
-      localStorage.setItem('veloradz_last_order_id', String(order.id));
+      localStorage.setItem('sitraa_last_order_id', String(order.id));
       notifyNewOrder(order);
       if (state.currentTab === 'orders') await loadOrders();
       if (state.metrics) await loadMetrics();
@@ -442,7 +442,7 @@ function stopOrderAlertPolling() {
 
 function toggleOrderAlerts() {
   state.orderAlerts.enabled = !state.orderAlerts.enabled;
-  localStorage.setItem('veloradz_order_alerts', state.orderAlerts.enabled ? 'on' : 'off');
+  localStorage.setItem('sitraa_order_alerts', state.orderAlerts.enabled ? 'on' : 'off');
   if (state.orderAlerts.enabled) {
     unlockOrderAudio();
     requestOrderNotifications();
