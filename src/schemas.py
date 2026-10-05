@@ -36,6 +36,7 @@ class AnalyticsEventCreate(BaseModel):
     page_path: Optional[str] = None
     product_id: Optional[str] = None
     product_name: Optional[str] = None
+    event_label: Optional[str] = None
     referrer: Optional[str] = None
     utm_source: Optional[str] = None
     utm_medium: Optional[str] = None

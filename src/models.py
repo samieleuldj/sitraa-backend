@@ -77,6 +77,7 @@ class AnalyticsEvent(Base):
     page_path = Column(String(500), nullable=True)
     product_id = Column(String(120), nullable=True, index=True)
     product_name = Column(String(255), nullable=True)
+    event_label = Column(String(255), nullable=True)
     referrer = Column(String(500), nullable=True)
     utm_source = Column(String(120), nullable=True)
     utm_medium = Column(String(120), nullable=True)

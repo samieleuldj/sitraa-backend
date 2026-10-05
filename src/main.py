@@ -169,7 +169,15 @@ def track_analytics_event(
     request: Request,
     db: Session = Depends(get_db),
 ):
-    allowed = {"page_view", "product_view", "checkout_start"}
+    allowed = {
+        "page_view",
+        "product_view",
+        "checkout_start",
+        "checkout_step_1",
+        "checkout_step_2",
+        "checkout_abandon",
+        "whatsapp_lead",
+    }
     if payload.event_type not in allowed:
         raise HTTPException(status_code=400, detail="Invalid event type")
 
@@ -181,6 +189,7 @@ def track_analytics_event(
         page_path=payload.page_path,
         product_id=payload.product_id,
         product_name=payload.product_name,
+        event_label=payload.event_label,
         referrer=payload.referrer,
         utm_source=payload.utm_source,
         utm_medium=payload.utm_medium,

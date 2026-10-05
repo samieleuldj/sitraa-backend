@@ -118,6 +118,13 @@ def ensure_schema_updates() -> None:
             "ALTER TABLE daily_ad_spend ADD COLUMN product_name VARCHAR(255) NULL",
         )
 
+    if "analytics_events" in tables:
+        _add_column_if_missing(
+            "analytics_events",
+            "event_label",
+            "ALTER TABLE analytics_events ADD COLUMN event_label VARCHAR(255) NULL",
+        )
+
     if "product_costs" not in tables:
         with engine.begin() as conn:
             conn.execute(
